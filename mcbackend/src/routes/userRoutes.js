@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+const { getProfile, toggleDisable } = require("../controllers/userController");
+const { protect } = require("../middleware/authMiddleware");
+const { permit } = require("../middleware/roleMiddleware");
+
+router.get("/profile", protect, getProfile);
+router.put("/:id/toggle-disable", protect, permit("admin"), toggleDisable);
+
+module.exports = router;

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "hgb_001",
+    "testName": "Hemoglobin",
+    "category": "Complete Blood Count",
+    "referenceRange": "Men: 13.5-17.5 g/dL, Women: 12.0-15.5 g/dL",
+    "description": "Hemoglobin is a protein in your red blood cells that carries oxygen from your lungs to the rest of your body.",
+    "lowIndications": "Low hemoglobin levels might indicate anemia, blood loss, or iron deficiency.",
+    "highIndications": "High hemoglobin levels might indicate polycythemia vera, lung disease, or dehydration.",
+    "simplifiedExplanation": "This measures the oxygen-carrying capacity of your blood. Think of it as the delivery trucks for oxygen in your body."
+  },
+  {
+    "id": "wbc_001",
+    "testName": "White Blood Cell Count (WBC)",
+    "category": "Complete Blood Count",
+    "referenceRange": "4,500 to 11,000 cells/mcL",
+    "description": "White blood cells are a key part of your immune system, helping your body fight infections.",
+    "lowIndications": "A low WBC count (leukopenia) may indicate bone marrow problems or auto-immune disorders.",
+    "highIndications": "A high WBC count typically indicates the body is fighting an infection, inflammation, or stress.",
+    "simplifiedExplanation": "These are your body's tiny soldiers. High counts usually mean they are busy fighting off germs."
+  },
+  {
+    "id": "glu_001",
+    "testName": "Fasting Blood Sugar",
+    "category": "Metabolic",
+    "referenceRange": "70-99 mg/dL (Normal), 100-125 mg/dL (Prediabetes), 126+ mg/dL (Diabetes)",
+    "description": "Measures the amount of glucose (sugar) in your blood after fasting for several hours.",
+    "lowIndications": "Hypoglycemia (low blood sugar) can cause dizziness or sweating.",
+    "highIndications": "Hyperglycemia (high blood sugar) is a key indicator of pre-diabetes or diabetes.",
+    "simplifiedExplanation": "This measures how much fuel (sugar) is currently in your blood. Too much sugar can be like too much pressure in a pipe."
+  },
+  {
+    "id": "chol_001",
+    "testName": "Total Cholesterol",
+    "category": "Lipid Profile",
+    "referenceRange": "Less than 200 mg/dL (Desirable), 200-239 mg/dL (Borderline High), 240+ mg/dL (High)",
+    "description": "A measure of the total amount of cholesterol in your blood.",
+    "lowIndications": "Very low cholesterol is rare but can be linked to malnutrition or liver disease.",
+    "highIndications": "High cholesterol increases the risk of heart disease and stroke.",
+    "simplifiedExplanation": "Cholesterol is a waxy substance in your blood. Imagine it as grease that can build up in your body's plumbing."
+  },
+  {
+    "id": "cr_001",
+    "testName": "Creatinine",
+    "category": "Kidney Function",
+    "referenceRange": "0.7 to 1.3 mg/dL for men, 0.6 to 1.1 mg/dL for women",
+    "description": "Creatinine is a waste product from muscle wear and tear that is filtered by the kidneys.",
+    "lowIndications": "Low levels are rare and often related to low muscle mass or pregnancy.",
+    "highIndications": "High levels usually suggest that the kidneys are not filtering blood as efficiently as they should.",
+    "simplifiedExplanation": "This shows how well your kidneys are cleaning your blood. High levels mean the 'filter' might be getting clogged."
+  }
+]

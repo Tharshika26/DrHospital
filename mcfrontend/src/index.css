@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+
+  /* Hide scrollbar for all elements */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Remove spin buttons from number inputs (Age field, etc) */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+    appearance: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-2 text-white font-semibold rounded-lg transition-colors duration-200 cursor-pointer;
+    background-color: #1c6b64;
+  }
+
+  .btn-primary:hover {
+    background-color: #15514b;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2 bg-slate-100 text-slate-800 font-semibold rounded-lg hover:bg-slate-200 transition-colors duration-200 cursor-pointer border border-slate-200;
+  }
+
+  .card {
+    @apply bg-white p-6 rounded-2xl border border-slate-200 transition-all duration-300 shadow-sm;
+  }
+
+  .card:hover {
+    @apply shadow-md;
+    border-color: rgba(28, 107, 100, 0.3);
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 20px rgba(28, 107, 100, 0.5);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
