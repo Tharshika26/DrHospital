@@ -36,6 +36,10 @@ if (process.env.NODE_ENV !== "production") {
     app.use(morgan("dev"));
 }
 
+app.get("/", (req, res) => {
+    res.send("API is running...");
+});
+
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
