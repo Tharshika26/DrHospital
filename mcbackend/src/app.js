@@ -20,7 +20,11 @@ const app = express();
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || origin.startsWith("http://localhost:") || origin === process.env.FRONTEND_URL) {
+        const allowedOrigins = [
+            process.env.FRONTEND_URL,
+            "https://dr-hospital.vercel.app"
+        ];
+        if (!origin || origin.startsWith("http://localhost:") || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
