@@ -69,7 +69,7 @@ const getPatientDashboardData = asyncHandler(async (req, res) => {
 
     appointments.forEach(appt => {
         const statusLower = (appt.status || "").toLowerCase();
-        const isScheduled = statusLower === 'scheduled' || statusLower === 'confirmed' || statusLower === 'upcoming';
+        const isScheduled = statusLower === 'scheduled' || statusLower === 'confirmed' || statusLower === 'upcoming' || statusLower === 'pending';
 
         let isPast = false;
         if (appt.date && appt.timeSlot) {

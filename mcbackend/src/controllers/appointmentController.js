@@ -140,11 +140,83 @@ const bookAppointment = asyncHandler(async (req, res) => {
         console.log(`[Email] Appointment confirmation successfully sent to patient ${req.user.email.replace(/^(.)(.*)(@.*)$/, "$1***$3")}`);
 
         // 2. Notify Doctor (email)
+        const doctorMailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>New Appointment Request</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f4f6f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #f4f6f8; padding: 40px 0;">
+                <tr>
+                    <td align="center">
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0; text-align: left;">
+                            <tr>
+                                <td align="center" style="background: linear-gradient(135deg, #0f172a, #0d9488); padding: 40px 20px; color: #ffffff;">
+                                    <div style="font-size: 28px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1px;">Dr.HOSPITAL</div>
+                                    <div style="font-size: 14px; color: #ccfbf1; opacity: 0.9;">New Appointment Request</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 40px 30px;">
+                                    <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 20px; font-weight: 600;">Action Required: Pending Request</h2>
+                                    <p style="margin: 0 0 25px 0; color: #475569; font-size: 15px; line-height: 1.6;">Dear Dr. ${doctor.user.name},</p>
+                                    <p style="margin: 0 0 25px 0; color: #475569; font-size: 15px; line-height: 1.6;">A new appointment has been requested by a patient. Please find the details below:</p>
+                                    
+                                    <table border="0" cellpadding="12" cellspacing="0" width="100%" style="background-color: #f1f5f9; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #0d9488;">
+                                        <tr>
+                                            <td style="font-size: 14px; color: #475569; font-weight: 600; width: 150px; border-bottom: 1px solid #e2e8f0;">Patient:</td>
+                                            <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${req.user.name}</td>
+                                        </tr>
+                                        ${serviceName ? `
+                                        <tr>
+                                            <td style="font-size: 14px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0;">Service:</td>
+                                            <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${serviceName}</td>
+                                        </tr>` : ''}
+                                        <tr>
+                                            <td style="font-size: 14px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0;">Date:</td>
+                                            <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${formattedDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 14px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0;">Time Slot:</td>
+                                            <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${timeSlot}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 14px; color: #475569; font-weight: 600;">Status:</td>
+                                            <td style="font-size: 14px; color: #b45309; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pending Approval</td>
+                                        </tr>
+                                    </table>
+
+                                    <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                                        <p style="margin: 0; color: #b45309; font-size: 14px; font-weight: 500; line-height: 1.5;">
+                                            <strong>Action Required:</strong> Please log in to your dashboard to review and approve or reject this appointment request.
+                                        </p>
+                                    </div>
+                                    
+                                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+                                    <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5;">Dr.HOSPITAL Administration Team</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #f8fafc; padding: 25px 30px; text-align: center; border-top: 1px solid #f1f5f9;">
+                                    <p style="margin: 0; color: #94a3b8; font-size: 12px;">&copy; 2026 Dr.HOSPITAL. All rights reserved.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `;
+
         await transporter.sendMail({
             from: `"Dr.HOSPITAL Portal" <${process.env.SMTP_USER}>`,
             to: doctor.user.email,
             subject: `New Appointment Request - Dr.HOSPITAL`,
             text: `Dear Dr. ${doctor.user.name},\n\nPatient ${req.user.name} has requested an appointment on ${formattedDate} at ${timeSlot}.\n\nPlease log in to your dashboard to review and approve/reject this request.`,
+            html: doctorMailHtml
         });
         console.log(`[Email] Appointment notification successfully sent to doctor ${doctor.user.email.replace(/^(.)(.*)(@.*)$/, "$1***$3")}`);
 
@@ -431,11 +503,83 @@ const saveAppointmentByStaff = asyncHandler(async (req, res) => {
 
         if (doctorEmail) {
             // 2. Notify Doctor (email)
+            const doctorMailHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>New Appointment Scheduled</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #f4f6f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #f4f6f8; padding: 40px 0;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0; text-align: left;">
+                                <tr>
+                                    <td align="center" style="background: linear-gradient(135deg, #0f172a, #0d9488); padding: 40px 20px; color: #ffffff;">
+                                        <div style="font-size: 28px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1px;">Dr.HOSPITAL</div>
+                                        <div style="font-size: 14px; color: #ccfbf1; opacity: 0.9;">New Appointment Scheduled</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 40px 30px;">
+                                        <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 20px; font-weight: 600;">Action Required: New Appointment</h2>
+                                        <p style="margin: 0 0 25px 0; color: #475569; font-size: 15px; line-height: 1.6;">Dear Dr. ${resolvedDoctorName},</p>
+                                        <p style="margin: 0 0 25px 0; color: #475569; font-size: 15px; line-height: 1.6;">A new appointment has been scheduled for you. Please find the details below:</p>
+                                        
+                                        <table border="0" cellpadding="12" cellspacing="0" width="100%" style="background-color: #f1f5f9; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #0d9488;">
+                                            <tr>
+                                                <td style="font-size: 14px; color: #475569; font-weight: 600; width: 150px; border-bottom: 1px solid #e2e8f0;">Patient:</td>
+                                                <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${resolvedPatientName}</td>
+                                            </tr>
+                                            ${doctor.specialization ? `
+                                            <tr>
+                                                <td style="font-size: 14px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0;">Specialization:</td>
+                                                <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${doctor.specialization}</td>
+                                            </tr>` : ''}
+                                            <tr>
+                                                <td style="font-size: 14px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0;">Date:</td>
+                                                <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${formattedDate}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size: 14px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0;">Time Slot:</td>
+                                                <td style="font-size: 14px; color: #1e293b; font-weight: 700; border-bottom: 1px solid #e2e8f0;">${timeSlot}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size: 14px; color: #475569; font-weight: 600;">Status:</td>
+                                                <td style="font-size: 14px; color: #0d9488; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Confirmed</td>
+                                            </tr>
+                                        </table>
+    
+                                        <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                                            <p style="margin: 0; color: #b45309; font-size: 14px; font-weight: 500; line-height: 1.5;">
+                                                <strong>Action Required:</strong> Please log in to your dashboard to review this appointment.
+                                            </p>
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+                                        <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5;">Dr.HOSPITAL Administration Team</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f8fafc; padding: 25px 30px; text-align: center; border-top: 1px solid #f1f5f9;">
+                                        <p style="margin: 0; color: #94a3b8; font-size: 12px;">&copy; 2026 Dr.HOSPITAL. All rights reserved.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+            `;
+            
             await transporter.sendMail({
                 from: `"Dr.HOSPITAL Portal" <${process.env.SMTP_USER}>`,
                 to: doctorEmail,
                 subject: `New Appointment Scheduled - Dr.HOSPITAL`,
                 text: `Dear Dr. ${resolvedDoctorName},\n\nPatient ${resolvedPatientName} has scheduled an appointment on ${formattedDate} at ${timeSlot}.\n\nPlease log in to your dashboard to review this appointment.`,
+                html: doctorMailHtml
             });
             console.log(`[Email] Appointment notification successfully sent to doctor ${doctorEmail.replace(/^(.)(.*)(@.*)$/, "$1***$3")}`);
         } else {
