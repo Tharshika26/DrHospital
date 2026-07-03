@@ -74,7 +74,7 @@ export default function RegisterPage() {
         if (!contactRegex.test(contact)) return setError('Please enter a valid contact number (at least 10 digits)');
 
         // Address validation
-        if (!address.trim() || address.length < 5) return setError('Please enter a valid full address');
+        if (!address.trim()) return setError('Please select your district');
 
         setLoading(true);
         try {
@@ -343,16 +343,41 @@ export default function RegisterPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1.5">Full Address</label>
-                                    <input
-                                        type="text"
+                                    <label className="block text-xs font-medium text-slate-600 mb-1.5">District</label>
+                                    <select
                                         name="address"
                                         value={address}
                                         onChange={onChange}
                                         required
                                         className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1c6b64] focus:ring-1 focus:ring-[#1c6b64] transition-colors"
-                                        placeholder="123 Health Ave, NY 10001"
-                                    />
+                                    >
+                                        <option value="" disabled>Select District</option>
+                                        <option value="Ampara">Ampara</option>
+                                        <option value="Anuradhapura">Anuradhapura</option>
+                                        <option value="Badulla">Badulla</option>
+                                        <option value="Batticaloa">Batticaloa</option>
+                                        <option value="Colombo">Colombo</option>
+                                        <option value="Galle">Galle</option>
+                                        <option value="Gampaha">Gampaha</option>
+                                        <option value="Hambantota">Hambantota</option>
+                                        <option value="Jaffna">Jaffna</option>
+                                        <option value="Kalutara">Kalutara</option>
+                                        <option value="Kandy">Kandy</option>
+                                        <option value="Kegalle">Kegalle</option>
+                                        <option value="Kilinochchi">Kilinochchi</option>
+                                        <option value="Kurunegala">Kurunegala</option>
+                                        <option value="Mannar">Mannar</option>
+                                        <option value="Matale">Matale</option>
+                                        <option value="Matara">Matara</option>
+                                        <option value="Monaragala">Monaragala</option>
+                                        <option value="Mullaitivu">Mullaitivu</option>
+                                        <option value="Nuwara Eliya">Nuwara Eliya</option>
+                                        <option value="Polonnaruwa">Polonnaruwa</option>
+                                        <option value="Puttalam">Puttalam</option>
+                                        <option value="Ratnapura">Ratnapura</option>
+                                        <option value="Trincomalee">Trincomalee</option>
+                                        <option value="Vavuniya">Vavuniya</option>
+                                    </select>
                                 </div>
 
 
