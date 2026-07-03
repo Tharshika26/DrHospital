@@ -48,7 +48,7 @@ export default function PatientProfile() {
             try {
                 const { data } = await axiosInstance.get('/patients/me');
                 const user = data.user || {};
-                
+
                 const names = user.name ? user.name.split(' ') : [''];
                 const firstName = names[0] || '';
                 const lastName = names.slice(1).join(' ') || '';
@@ -89,7 +89,7 @@ export default function PatientProfile() {
     };
 
     const handleUploadClick = () => {
-        if(isEditing && fileInputRef.current) {
+        if (isEditing && fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
@@ -104,7 +104,7 @@ export default function PatientProfile() {
         try {
             toast.loading('Updating profile...', { id: 'update-profile' });
             const { data } = await axiosInstance.put('/patients/me', formData);
-            
+
             // Update local storage if name or email changed
             const localInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
             localInfo.name = data.user.name;
@@ -114,7 +114,7 @@ export default function PatientProfile() {
             toast.success('Profile updated successfully!', { id: 'update-profile' });
             setIsEditing(false);
             setOriginalEmail(data.user.email || '');
-            
+
             // Re-split name and update all fields for UI
             const user = data.user || {};
             const names = user.name ? user.name.split(' ') : [''];
@@ -203,8 +203,8 @@ export default function PatientProfile() {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
-                <Header 
-                    title="Profile" 
+                <Header
+                    title="Profile"
                     subtitle="Manage your personal and security information."
                     userName={patientName}
                     roleLabel="Patient"
@@ -213,13 +213,13 @@ export default function PatientProfile() {
                 {/* Scrollable Content */}
                 <main className="flex-1 overflow-y-auto p-8 bg-slate-50 text-slate-700 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
                     <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-                        
-                        <h2 className="text-xl font-bold text-slate-900 mb-8">Edit Profile</h2>
+
+                        <h2 className="text-xl font-bold text-slate-900 mb-8">{isEditing ? 'Edit Profile' : 'My Profile'}</h2>
 
 
                         {/* Form Details */}
                         <div className="space-y-6">
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-slate-500 text-xs font-medium mb-2">First Name</label>
@@ -296,7 +296,7 @@ export default function PatientProfile() {
                                 <div>
                                     <label className="block text-slate-500 text-xs font-medium mb-2">Gender</label>
                                     <div className="relative">
-                                        <select 
+                                        <select
                                             name="gender"
                                             value={formData.gender}
                                             onChange={handleInputChange}
@@ -351,7 +351,7 @@ export default function PatientProfile() {
             {showOtpModal && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 relative animate-in zoom-in duration-200">
-                        <button 
+                        <button
                             onClick={() => {
                                 setShowOtpModal(false);
                                 setOtpCode('');

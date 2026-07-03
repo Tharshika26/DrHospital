@@ -34,7 +34,14 @@ export default function RegisterPage() {
     const { firstName, lastName, email, password, confirmPassword, age, gender, contact, address } = formData;
 
     const onChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        
+        if (['firstName', 'lastName'].includes(name)) {
+            // Only allow letters and spaces
+            if (!/^[A-Za-z\s]*$/.test(value)) return;
+        }
+
+        setFormData({ ...formData, [name]: value });
     };
 
     const handleRegisterClick = async (e) => {

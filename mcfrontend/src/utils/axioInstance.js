@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 // Add a request interceptor to include the JWT token in headers
 axiosInstance.interceptors.request.use(
     (config) => {
-        const userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         if (userInfo && userInfo.token) {
             config.headers.Authorization = `Bearer ${userInfo.token}`;
         }
@@ -36,8 +36,16 @@ axiosInstance.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             console.warn('Unauthorized! Potential token expiry. Redirecting to login...');
-            sessionStorage.removeItem('userInfo');
+            localStorage.removeItem('userInfo');
             window.location.href = '/login';
+        } else if (error.response && error.response.status === 403) {
+            console.warn('Forbidden! Redirecting to correct dashboard...');
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            if (userInfo && userInfo.role) {
+                window.location.href = `/${userInfo.role}/dashboard`;
+            } else {
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

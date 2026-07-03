@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import authService from './services/authService';
 import useAutoLogout from './hooks/useAutoLogout';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/auth/Login';
@@ -18,12 +19,56 @@ import ManageDoctors from './pages/admin/ManageDoctors';
 import ManagePatients from './pages/admin/ManagePatients';
 import ManageServices from './pages/admin/ManageServices';
 import AllAppointments from './pages/admin/AllAppointments';
+import AdminProfile from './pages/admin/AdminProfile';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
     useAutoLogout(); // Default is 30 minutes
     
+    // Cross-tab synchronization to ensure only one active session per browser
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'userInfo' && e.newValue) {
+                try {
+                    const oldData = e.oldValue ? JSON.parse(e.oldValue) : {};
+                    const newData = JSON.parse(e.newValue);
+                    
+                    // Only reload if the actual token changed (a new login or logout)
+                    if (oldData.token !== newData.token) {
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    window.location.reload();
+                }
+            } else if (e.key === 'userInfo' && !e.newValue) {
+                // Logged out
+                window.location.href = '/login';
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    // Enforce DB truth on refresh
+    const [isCheckingSession, setIsCheckingSession] = useState(true);
+    useEffect(() => {
+        const verifySession = async () => {
+            const userInfo = localStorage.getItem('userInfo');
+            if (userInfo) {
+                // Fetch the real profile to override any manipulated localStorage values
+                await authService.fetchProfile();
+            }
+            setIsCheckingSession(false);
+        };
+        verifySession();
+    }, []);
+
+    if (isCheckingSession) {
+        return <div className="flex h-screen items-center justify-center bg-slate-50 text-slate-400">Loading...</div>;
+    }
+
     return (
         <>
             <Toaster
@@ -59,20 +104,27 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/patient/dashboard" element={<PatientDashboard />} />
-                <Route path="/patient/appointments" element={<PatientAppointments />} />
+
+                {/* Patient Routes */}
+                <Route path="/patient/dashboard" element={<ProtectedRoute allowedRoles={['patient']}><PatientDashboard /></ProtectedRoute>} />
+                <Route path="/patient/appointments" element={<ProtectedRoute allowedRoles={['patient']}><PatientAppointments /></ProtectedRoute>} />
                 <Route path="/patient/medical-reports" element={<Navigate to="/patient/reports" replace />} />
-                <Route path="/patient/reports" element={<PatientMedicalReports />} />
-                <Route path="/patient/profile" element={<PatientProfile />} />
-                <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
-                <Route path="/doctor/patients" element={<DoctorPatients />} />
-                <Route path="/doctor/appointments" element={<DoctorAppointments />} />
-                <Route path="/doctor/profile" element={<DoctorProfile />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/doctors" element={<ManageDoctors />} />
-                <Route path="/admin/patients" element={<ManagePatients />} />
-                <Route path="/admin/services" element={<ManageServices />} />
-                <Route path="/admin/appointments" element={<AllAppointments />} />
+                <Route path="/patient/reports" element={<ProtectedRoute allowedRoles={['patient']}><PatientMedicalReports /></ProtectedRoute>} />
+                <Route path="/patient/profile" element={<ProtectedRoute allowedRoles={['patient']}><PatientProfile /></ProtectedRoute>} />
+
+                {/* Doctor Routes */}
+                <Route path="/doctor/dashboard" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorDashboard /></ProtectedRoute>} />
+                <Route path="/doctor/patients" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorPatients /></ProtectedRoute>} />
+                <Route path="/doctor/appointments" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorAppointments /></ProtectedRoute>} />
+                <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorProfile /></ProtectedRoute>} />
+
+                {/* Admin Routes */}
+                <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin/doctors" element={<ProtectedRoute allowedRoles={['admin']}><ManageDoctors /></ProtectedRoute>} />
+                <Route path="/admin/patients" element={<ProtectedRoute allowedRoles={['admin']}><ManagePatients /></ProtectedRoute>} />
+                <Route path="/admin/services" element={<ProtectedRoute allowedRoles={['admin']}><ManageServices /></ProtectedRoute>} />
+                <Route path="/admin/appointments" element={<ProtectedRoute allowedRoles={['admin']}><AllAppointments /></ProtectedRoute>} />
+                <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['admin']}><AdminProfile /></ProtectedRoute>} />
             </Routes>
         </>
     );

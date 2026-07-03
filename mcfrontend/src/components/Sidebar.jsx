@@ -55,6 +55,7 @@ export default function Sidebar({ role }) {
             { icon: Users, label: 'Patients', path: '/admin/patients' },
             { icon: Calendar, label: 'Appointments', path: '/admin/appointments' },
             { icon: Briefcase, label: 'Services', path: '/admin/services' },
+            { icon: User, label: 'Profile', path: '/admin/profile' },
         ]
     };
 

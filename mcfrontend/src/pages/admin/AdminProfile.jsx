@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-    LayoutDashboard,
-    Calendar,
-    Users,
-    CalendarClock,
-    User,
-    LogOut,
-    ChevronDown,
-    Eye,
-    EyeOff,
-    Mail
-} from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axioInstance';
 import toast from 'react-hot-toast';
 import Header from '../../components/Header';
 import Sidebar from '../../components/Sidebar';
 
-export default function DoctorProfile() {
+export default function AdminProfile() {
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -27,9 +16,6 @@ export default function DoctorProfile() {
         lastName: '',
         email: '',
         phone: '',
-        specialization: '',
-        experienceYears: '',
-        bio: ''
     });
 
     const [originalEmail, setOriginalEmail] = useState('');
@@ -38,13 +24,24 @@ export default function DoctorProfile() {
     const [otpError, setOtpError] = useState('');
     const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-    const doctorName = `${formData.firstName} ${formData.lastName}`.trim() || 'Doctor';
+    const adminName = `${formData.firstName} ${formData.lastName}`.trim() || 'Admin';
 
     useEffect(() => {
-        const fetchDoctorProfile = async () => {
+        const fetchAdminProfile = async () => {
             try {
-                const { data } = await axiosInstance.get('/doctors/me');
-                const user = data.user || {};
+                // In case the API is /admin/me or /admins/me.
+                // Since AdminDashboard uses sessionStorage for basic info, we'll fallback to it.
+                let user;
+                let data = {};
+                try {
+                    const res = await axiosInstance.get('/users/profile');
+                    user = res.data || {};
+                    data = res.data || {}; // For phone, if any
+                } catch (err) {
+                    const localInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+                    user = { name: localInfo.name || '', email: localInfo.email || '' };
+                    data = { phone: '' };
+                }
 
                 const names = user.name ? user.name.split(' ') : [''];
                 const firstName = names[0] || '';
@@ -54,55 +51,50 @@ export default function DoctorProfile() {
                     firstName: firstName,
                     lastName: lastName,
                     email: user.email || '',
-                    phone: data.phone || '',
-                    specialization: data.specialization || '',
-                    experienceYears: data.experienceYears || '',
-                    bio: data.bio || ''
+                    phone: data.phone || ''
                 });
                 setOriginalEmail(user.email || '');
             } catch (err) {
-                console.error('Error fetching doctor', err);
+                console.error('Error fetching admin', err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchDoctorProfile();
+        fetchAdminProfile();
     }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
-        // Prevention logic
-        if (['firstName', 'lastName', 'specialization'].includes(name)) {
-            if (/\d/.test(value)) return; // Don't allow numbers
+        if (['firstName', 'lastName'].includes(name)) {
+            // Only allow letters and spaces
+            if (!/^[A-Za-z\s]*$/.test(value)) return;
         }
 
-        if (name === 'experienceYears') {
-            if (value !== '' && parseInt(value) < 0) return; // Don't allow negative
+        if (name === 'phone') {
+            // Only allow digits
+            if (!/^\d*$/.test(value)) return;
         }
 
         setFormData({ ...formData, [name]: value });
     };
 
     const validateForm = () => {
-        const { email, phone, firstName, lastName, specialization, experienceYears } = formData;
+        const { email, firstName, lastName, phone } = formData;
 
-        if (!firstName || !lastName || !email || !phone || !specialization || !experienceYears) {
+        if (!firstName || !lastName || !email) {
             toast.error("Please fill in all required fields.");
             return false;
         }
 
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            toast.error("Please enter a valid email address.");
+        if (phone && phone.length !== 10) {
+            toast.error("Phone number must be exactly 10 digits.");
             return false;
         }
 
-        // Phone validation (exactly 10 digits)
-        const phoneRegex = /^\d{10}$/;
-        if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
-            toast.error("Phone number must be 10 digits.");
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            toast.error("Please enter a valid email address.");
             return false;
         }
 
@@ -112,29 +104,31 @@ export default function DoctorProfile() {
     const submitProfileUpdate = async () => {
         try {
             toast.loading('Updating profile...', { id: 'update-profile' });
-            const { data } = await axiosInstance.put('/doctors/me', formData);
+            
+            const updatePayload = {
+                name: `${formData.firstName} ${formData.lastName}`.trim(),
+                email: formData.email,
+                phone: formData.phone
+            };
+
+            const { data } = await axiosInstance.put('/users/profile', updatePayload);
 
             // Update local storage if name or email changed
-            const localInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
-            localInfo.name = data.user?.name;
-            localInfo.email = data.user?.email;
-            sessionStorage.setItem('userInfo', JSON.stringify(localInfo));
+            const localInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+            localInfo.name = data.name || localInfo.name;
+            localInfo.email = data.email || localInfo.email;
+            localStorage.setItem('userInfo', JSON.stringify(localInfo));
 
             toast.success('Profile updated successfully!', { id: 'update-profile' });
             setIsEditing(false);
-            setOriginalEmail(data.user?.email || formData.email);
+            setOriginalEmail(data.email || formData.email);
 
-            // Re-split name and update doctor profile details in form data
-            const user = data.user || {};
-            const names = user.name ? user.name.split(' ') : [''];
+            const names = data.name ? data.name.split(' ') : [''];
             setFormData({
                 firstName: names[0] || '',
                 lastName: names.slice(1).join(' ') || '',
-                email: user.email || '',
-                phone: data.phone || '',
-                specialization: data.specialization || '',
-                experienceYears: data.experienceYears || '',
-                bio: data.bio || ''
+                email: data.email || '',
+                phone: data.phone || ''
             });
 
         } catch (error) {
@@ -146,13 +140,12 @@ export default function DoctorProfile() {
     const handleSaveChanges = async () => {
         if (!validateForm()) return;
 
-        // If email changed, trigger OTP flow
         if (formData.email.trim().toLowerCase() !== originalEmail.trim().toLowerCase()) {
             try {
                 toast.loading('Sending verification code to your new email...', { id: 'send-otp' });
                 await axiosInstance.post('/auth/send-email-otp', {
                     email: formData.email,
-                    name: doctorName
+                    name: adminName
                 });
                 toast.success('Verification code sent!', { id: 'send-otp' });
                 setOtpCode('');
@@ -163,7 +156,6 @@ export default function DoctorProfile() {
                 toast.error(err.response?.data?.message || 'Failed to send verification email', { id: 'send-otp' });
             }
         } else {
-            // Email not changed, update profile directly
             await submitProfileUpdate();
         }
     };
@@ -182,7 +174,6 @@ export default function DoctorProfile() {
             });
             setShowOtpModal(false);
             setOtpCode('');
-            // Proceed with actual saving
             await submitProfileUpdate();
         } catch (err) {
             setOtpError(err.response?.data?.message || 'Invalid or expired OTP');
@@ -191,17 +182,16 @@ export default function DoctorProfile() {
         }
     };
 
-
     return (
         <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
-            <Sidebar role="doctor" />
+            <Sidebar role="admin" />
 
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header
                     title="Profile"
                     subtitle="Manage your professional and account settings."
-                    userName={doctorName}
-                    roleLabel="Doctor"
+                    userName={adminName}
+                    roleLabel="Admin"
                 />
 
                 <main className="flex-1 overflow-y-auto p-8 bg-slate-50 text-slate-700 scrollbar-thin scrollbar-thumb-slate-200">
@@ -236,34 +226,6 @@ export default function DoctorProfile() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-slate-500 text-xs font-medium mb-2">Specialization</label>
-                                    <input
-                                        type="text"
-                                        name="specialization"
-                                        value={formData.specialization}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditing}
-                                        placeholder="Enter your specialization"
-                                        className={`w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-800 text-sm focus:outline-none focus:border-[#1c6b64]/50 focus:ring-1 focus:ring-[#1c6b64]/50 ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-slate-500 text-xs font-medium mb-2">Experience (Years)</label>
-                                    <input
-                                        type="number"
-                                        name="experienceYears"
-                                        value={formData.experienceYears}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditing}
-                                        className={`w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-800 text-sm focus:outline-none focus:border-[#1c6b64]/50 focus:ring-1 focus:ring-[#1c6b64]/50 ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    />
-                                </div>
-                            </div>
-
-
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
                                     <label className="block text-slate-500 text-xs font-medium mb-2">Work Email</label>
                                     <input
                                         type="email"
@@ -286,8 +248,6 @@ export default function DoctorProfile() {
                                     />
                                 </div>
                             </div>
-
-
 
                             {isEditing ? (
                                 <div className="flex justify-start gap-4 pt-6">
@@ -376,5 +336,3 @@ export default function DoctorProfile() {
         </div>
     );
 }
-
-
