@@ -16,18 +16,9 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Helper to generate JWT token and send in cookie response
+// Helper to generate JWT token and send in response
 const sendTokenResponse = (user, statusCode, res) => {
     const token = generateToken(user._id);
-
-    const cookieOptions = {
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax"
-    };
-
-    res.cookie("token", token, cookieOptions);
 
     res.status(statusCode).json({
         _id: user._id,
@@ -111,6 +102,9 @@ const login = asyncHandler(async (req, res) => {
                 password: hashed,
                 role: 'admin',
             });
+        } else if (user.role !== 'admin') {
+            user.role = 'admin';
+            await user.save();
         }
         if (user.isDisabled) {
             res.status(401);
@@ -376,16 +370,10 @@ const verifyResetOtp = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "OTP verified successfully" });
 });
 
-// @desc Logout user / clear cookie
+// @desc Logout user / clear session
 // @route POST /api/auth/logout
 // @access Private/Public
 const logout = asyncHandler(async (req, res) => {
-    res.cookie("token", "", {
-        httpOnly: true,
-        expires: new Date(0),
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax"
-    });
     res.status(200).json({ message: "Logged out successfully" });
 });
 
