@@ -40,11 +40,17 @@ export default function PatientDashboard() {
                 }
 
                 if (dashboardRes.data) {
-                    setDashboardData(dashboardRes.data);
+                    const data = dashboardRes.data;
+                    if (data.upcomingAppointments) {
+                        data.upcomingAppointments = data.upcomingAppointments.filter(apt => 
+                            (!apt.doctor || (typeof apt.doctor === 'object' ? apt.doctor.user : true))
+                        );
+                    }
+                    setDashboardData(data);
                 }
             } catch (err) {
                 console.error('Failed to fetch dashboard data:', err);
-                const userInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+                const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
                 setPatientInfo({ name: userInfo.name || 'Patient', id: '' });
             } finally {
                 setIsLoading(false);

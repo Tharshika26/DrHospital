@@ -29,7 +29,7 @@ export default function PatientMedicalReports() {
     const [analyzing, setAnalyzing] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     
-    const userInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+    const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
     const patientName = userInfo.name || 'Patient';
     const fileInputRef = useRef(null);
 

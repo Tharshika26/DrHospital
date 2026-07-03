@@ -30,7 +30,7 @@ export default function AdminProfile() {
         const fetchAdminProfile = async () => {
             try {
                 // In case the API is /admin/me or /admins/me.
-                // Since AdminDashboard uses sessionStorage for basic info, we'll fallback to it.
+                // Since AdminDashboard uses localStorage for basic info, we'll fallback to it.
                 let user;
                 let data = {};
                 try {

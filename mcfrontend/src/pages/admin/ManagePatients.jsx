@@ -32,7 +32,7 @@ export default function ManagePatients() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const stored = sessionStorage.getItem('userInfo');
+        const stored = localStorage.getItem('userInfo');
         if (stored) setUser(JSON.parse(stored));
     }, []);
 
@@ -40,7 +40,9 @@ export default function ManagePatients() {
         setLoading(true);
         try {
             const res = await axiosInstance.get('/patients');
-            const formatted = res.data.map(p => ({
+            const formatted = res.data
+                .filter(p => p.user)
+                .map(p => ({
                 _id: p._id,
                 userId: p.user?._id,
                 isDisabled: p.user?.isDisabled || false,

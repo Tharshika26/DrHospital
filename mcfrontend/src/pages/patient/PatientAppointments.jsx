@@ -22,7 +22,7 @@ export default function PatientAppointments() {
     const [appointments, setAppointments] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const userInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+    const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
     const patientName = userInfo.name || 'Patient';
 
     const fetchAppointments = async () => {
@@ -80,7 +80,8 @@ export default function PatientAppointments() {
     }, [searchParams, navigate]);
 
     const upcomingAppointments = appointments.filter(appt => {
-        const isScheduled = appt.status === 'Scheduled' || appt.status === 'confirmed';
+        const statusLower = (appt.status || "").toLowerCase();
+        const isScheduled = statusLower === 'scheduled' || statusLower === 'confirmed' || statusLower === 'pending' || statusLower === 'upcoming';
         if (!isScheduled) return false;
 
         if (!appt.date || !appt.timeSlot) return true;
@@ -96,10 +97,11 @@ export default function PatientAppointments() {
     });
 
     const pastAppointments = appointments.filter(appt => {
-        const isPastStatus = appt.status === 'completed' || appt.status === 'rejected';
+        const statusLower = (appt.status || "").toLowerCase();
+        const isPastStatus = statusLower === 'completed' || statusLower === 'rejected';
         if (isPastStatus) return true;
 
-        const isScheduled = appt.status === 'Scheduled' || appt.status === 'confirmed';
+        const isScheduled = statusLower === 'scheduled' || statusLower === 'confirmed' || statusLower === 'pending' || statusLower === 'upcoming';
         if (!isScheduled) return false;
 
         if (!appt.date || !appt.timeSlot) return false;

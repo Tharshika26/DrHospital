@@ -32,14 +32,14 @@ export default function AllAppointments() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const stored = sessionStorage.getItem('userInfo');
+        const stored = localStorage.getItem('userInfo');
         if (stored) setUser(JSON.parse(stored));
     }, []);
 
     const fetchDoctors = async () => {
         try {
             const res = await axiosInstance.get('/doctors');
-            setDoctors(res.data.filter(doc => !doc.user?.isDisabled));
+            setDoctors(res.data.filter(doc => doc.user && !doc.user.isDisabled));
         } catch (err) {
             console.error('Error fetching doctors:', err);
         }
@@ -48,7 +48,10 @@ export default function AllAppointments() {
     const fetchAppointments = async () => {
         try {
             const response = await axiosInstance.get('/appointments');
-            setAppointments(response.data);
+            const filteredAppointments = response.data.filter(apt => 
+                (!apt.doctor || apt.doctor.user) && (!apt.patient || apt.patient.user)
+            );
+            setAppointments(filteredAppointments);
         } catch (error) {
             console.error('Error fetching appointments:', error);
             toast.error('Failed to load appointments');

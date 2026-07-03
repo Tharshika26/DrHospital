@@ -65,7 +65,7 @@ export default function PatientProfile() {
                 setOriginalEmail(user.email || '');
             } catch (err) {
                 console.error('Error fetching patient', err);
-                const localInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+                const localInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
                 const names = localInfo.name ? localInfo.name.split(' ') : [''];
                 setFormData({
                     firstName: names[0] || '',
@@ -106,10 +106,10 @@ export default function PatientProfile() {
             const { data } = await axiosInstance.put('/patients/me', formData);
 
             // Update local storage if name or email changed
-            const localInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+            const localInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
             localInfo.name = data.user.name;
             localInfo.email = data.user.email;
-            sessionStorage.setItem('userInfo', JSON.stringify(localInfo));
+            localStorage.setItem('userInfo', JSON.stringify(localInfo));
 
             toast.success('Profile updated successfully!', { id: 'update-profile' });
             setIsEditing(false);

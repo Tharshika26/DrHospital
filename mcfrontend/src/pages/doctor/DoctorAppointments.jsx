@@ -40,7 +40,9 @@ export default function DoctorAppointments() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            const formatted = res.data.map(apt => {
+            const formatted = res.data
+                .filter(apt => (!apt.patient || apt.patient.user) && (!apt.doctor || apt.doctor.user))
+                .map(apt => {
                 // Determine if date has passed
                 const apptDate = new Date(apt.date);
                 apptDate.setHours(0, 0, 0, 0);
@@ -58,7 +60,7 @@ export default function DoctorAppointments() {
 
                 return {
                     id: apt._id,
-                    name: apt.patient?.user?.name || "Unknown Patient",
+                    name: apt.patient?.user?.name || apt.patientName || "Unknown Patient",
                     date: new Date(apt.date).toLocaleDateString(),
                     rawDate: apt.date,
                     time: apt.timeSlot,

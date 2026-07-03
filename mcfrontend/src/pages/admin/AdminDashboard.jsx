@@ -30,7 +30,7 @@ export default function AdminDashboard() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const stored = sessionStorage.getItem('userInfo');
+        const stored = localStorage.getItem('userInfo');
         if (stored) setUser(JSON.parse(stored));
     }, []);
 

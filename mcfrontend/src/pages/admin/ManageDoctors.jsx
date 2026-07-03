@@ -37,14 +37,16 @@ export default function ManageDoctors() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const stored = sessionStorage.getItem('userInfo');
+        const stored = localStorage.getItem('userInfo');
         if (stored) setUser(JSON.parse(stored));
     }, []);
 
     const fetchDoctors = async () => {
         try {
             const { data } = await axiosInstance.get('/doctors');
-            const mappedDoctors = data.map(doc => ({
+            const mappedDoctors = data
+                .filter(doc => doc.user)
+                .map(doc => ({
                 id: doc._id,
                 name: doc.user?.name || 'Unknown',
                 email: doc.user?.email || 'N/A',

@@ -27,7 +27,7 @@ export default function NewAppointmentPopup({ onClose }) {
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const userInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+    const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
     const isAdmin = userInfo.role === 'admin';
     const isPatient = userInfo.role === 'patient';
 
@@ -70,9 +70,9 @@ export default function NewAppointmentPopup({ onClose }) {
                 }
 
                 const [docsRes, patientsRes] = await Promise.all(promises);
-                setDoctors(docsRes.data);
+                setDoctors(docsRes.data.filter(doc => doc.user));
                 if (isAdmin && patientsRes) {
-                    setPatients(patientsRes.data);
+                    setPatients(patientsRes.data.filter(p => p.user));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);

@@ -37,7 +37,9 @@ export default function DoctorPatients() {
         setLoading(true);
         try {
             const res = await axiosInstance.get('/patients/doctor-patients');
-            const formatted = res.data.map(p => ({
+            const formatted = res.data
+                .filter(p => p.user)
+                .map(p => ({
                 id: p._id.substring(0, 8),
                 name: p.user?.name || "Unknown",
                 email: p.user?.email || "N/A",

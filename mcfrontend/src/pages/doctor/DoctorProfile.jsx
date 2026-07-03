@@ -115,10 +115,10 @@ export default function DoctorProfile() {
             const { data } = await axiosInstance.put('/doctors/me', formData);
 
             // Update local storage if name or email changed
-            const localInfo = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+            const localInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
             localInfo.name = data.user?.name;
             localInfo.email = data.user?.email;
-            sessionStorage.setItem('userInfo', JSON.stringify(localInfo));
+            localStorage.setItem('userInfo', JSON.stringify(localInfo));
 
             toast.success('Profile updated successfully!', { id: 'update-profile' });
             setIsEditing(false);
