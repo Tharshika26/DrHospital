@@ -115,7 +115,7 @@ export default function RegisterPage() {
                 address
             });
             setShowOtpModal(false);
-            navigate('/patient/dashboard');
+            navigate('/login');
         } catch (err) {
             setOtpError(err.response?.data?.message || 'Invalid or expired OTP');
         } finally {

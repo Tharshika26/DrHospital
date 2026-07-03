@@ -22,8 +22,7 @@ const register = async (userData) => {
         const response = await axiosInstance.post('/auth/register', userData);
         console.log('authService.register response:', response.data);
         if (response.data) {
-            localStorage.setItem('userInfo', JSON.stringify(response.data));
-            console.log('authService.register stored userInfo in localStorage');
+            console.log('authService.register successful, user must now log in manually');
         }
         return response.data;
     } catch (error) {
